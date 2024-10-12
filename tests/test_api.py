@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+
 from graphs.api.main import app
 
 client = TestClient(app)

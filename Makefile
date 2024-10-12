@@ -35,9 +35,9 @@ format:
 test:
 	@python -m pytest --cov=src --cov-report xml --log-level=WARNING --disable-pytest-warnings
 
-## Run api
-api:
-	@python -m uvicorn src.graphs.api.main:app --reload
+## Run app
+app:
+	@gradio src/graphs/app/main.py
 
 ## Build using pip-tools
 build:

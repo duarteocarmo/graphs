@@ -1,10 +1,32 @@
+import inspect
 import io
-import time
+from inspect import Parameter
 
 import gradio as gr
 import matplotlib.pyplot as plt
+from litellm import completion
 from PIL import Image
+from pydantic import create_model
 from wordcloud import WordCloud
+
+from graphs import MODEL
+
+
+def schema(f) -> dict:
+    kw = {
+        n: (o.annotation, ... if o.default == Parameter.empty else o.default)
+        for n, o in inspect.signature(f).parameters.items()
+    }
+    s = create_model(f"Input for `{f.__name__}`", **kw).schema()
+
+    return {
+        "type": "function",
+        "function": {
+            "name": f.__name__,
+            "description": f.__doc__,
+            "parameters": s,
+        },
+    }
 
 
 def create_wordcloud(messages):
@@ -28,22 +50,32 @@ def create_wordcloud(messages):
 
 
 def echo_bot(message, history):
+    history.append(
+        {
+            "role": "user",
+            "content": message,
+        }
+    )
+
     bot_message = ""
-    for character in message:
-        bot_message += character
-        time.sleep(0.02)
+    for chunk in completion(
+        model=MODEL,
+        messages=history,
+        stream=True,
+    ):
+        if content := chunk.choices[0].delta.content:
+            bot_message += content
+
         new_history = history + [
-            {"role": "user", "content": message},
             {"role": "assistant", "content": bot_message},
         ]
         yield new_history, None
 
-    final_history = history + [
-        {"role": "user", "content": message},
+    history = history + [
         {"role": "assistant", "content": bot_message},
     ]
-    wordcloud = create_wordcloud(final_history)
-    yield final_history, wordcloud
+    wordcloud = create_wordcloud(history)
+    yield history, wordcloud
 
 
 with gr.Blocks() as demo:
@@ -53,7 +85,7 @@ with gr.Blocks() as demo:
 
         with gr.Column(scale=1):
             chatbot = gr.Chatbot(
-                label="Streaming Echo Chatbot", type="messages"
+                label="Streaming Echo Chatbot", type="messages", height=500
             )
             msg = gr.Textbox(label="Message")
 
