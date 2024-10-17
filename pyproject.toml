@@ -5,7 +5,6 @@ description = "Self updating knowledge graph in a chat interface"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-  "gradio",
   "matplotlib",
   "wordcloud",
   "pydantic",
@@ -13,10 +12,11 @@ dependencies = [
   "instructor",
   "litellm",
   "graphviz",
+  "panel",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest", "pytest-cov", "ruff", "watchdog", "httpx"]
+dev = ["pytest", "pytest-cov", "ruff", "watchfiles"]
 
 [tool.ruff]
 exclude = [".env", ".venv", "venv", "notebooks"]
@@ -25,7 +25,7 @@ line-length = 79
 [tool.ruff.lint]
 ignore = ["E501"]
 select = ["E", "F", "I", "W"]
-fixable = ["I", "F"]
+fixable = ["I", "F", "W291"]
 
 [tool.coverage.paths]
 source = ["src"]

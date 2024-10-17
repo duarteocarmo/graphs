@@ -28,7 +28,7 @@ check:
 
 ## Format files using black
 format:
-	@python -m ruff check . --fix
+	@python -m ruff check . --fix --unsafe-fixes
 	@python -m ruff format .
 
 ## Run tests
@@ -37,7 +37,7 @@ test:
 
 ## Run app
 app:
-	@gradio src/graphs/app/main.py
+	@panel serve src/graphs/app/main.py --autoreload
 
 ## Build using pip-tools
 build:
