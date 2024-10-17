@@ -3,16 +3,18 @@ import json
 import typing as t
 from inspect import Parameter
 
+import litellm
 import panel as pn
 import param
 from graphviz import Digraph
-from litellm import acompletion, stream_chunk_builder
+from litellm import acompletion, completion, stream_chunk_builder
 from panel.chat import ChatMessage
 from panel.viewable import Viewer
 from pydantic import BaseModel, Field, create_model
 
-from graphs import INSTRUCTOR_CLIENT, MODEL
+from graphs import MODEL
 
+litellm.enable_json_schema_validation = True
 pn.extension(sizing_mode="stretch_width")
 
 
@@ -115,7 +117,7 @@ def update_graph(input: list[str], kg: KnowledgeGraph) -> KnowledgeGraph:
     </user_message>
     """.strip()
 
-    new_updates = INSTRUCTOR_CLIENT.chat.completions.create(
+    response = completion(
         model=MODEL,
         messages=[
             {
@@ -132,10 +134,15 @@ def update_graph(input: list[str], kg: KnowledgeGraph) -> KnowledgeGraph:
                 {kg.model_dump_json(indent=2)}""",
             },
         ],
-        response_model=KnowledgeGraph,
+        response_format=KnowledgeGraph,
     )
 
-    return kg.update(new_updates)
+    try:
+        return KnowledgeGraph.model_validate_json(
+            response.choices[0].message.content
+        )
+    except Exception as e:
+        raise ValueError(f"Error updating graph: {e}")
 
 
 class KnowledgeGraphApp(Viewer):

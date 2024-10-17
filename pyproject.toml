@@ -9,7 +9,6 @@ dependencies = [
   "wordcloud",
   "pydantic",
   "openai",
-  "instructor",
   "litellm",
   "graphviz",
   "panel",
