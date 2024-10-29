@@ -13,4 +13,4 @@ WORKDIR /
 
 EXPOSE 80
 
-CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["panel", "serve", "src/graphs/app/main.py", "--address", "0.0.0.0", "--port", "80",  "--allow-websocket-origin", "*", "--num-procs", "2", "--num-threads", "0", "--index", "app"]

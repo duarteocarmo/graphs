@@ -5,8 +5,6 @@ description = "Self updating knowledge graph in a chat interface"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-  "matplotlib",
-  "wordcloud",
   "pydantic",
   "openai",
   "litellm",

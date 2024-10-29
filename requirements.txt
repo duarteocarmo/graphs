@@ -35,19 +35,13 @@ click==8.1.7
     #   litellm
     #   typer
 contourpy==1.3.0
-    # via
-    #   bokeh
-    #   matplotlib
-cycler==0.12.1
-    # via matplotlib
+    # via bokeh
 distro==1.9.0
     # via openai
 docstring-parser==0.16
     # via instructor
 filelock==3.16.1
     # via huggingface-hub
-fonttools==4.54.1
-    # via matplotlib
 frozenlist==1.4.1
     # via
     #   aiohttp
@@ -87,8 +81,6 @@ jsonschema==4.23.0
     # via litellm
 jsonschema-specifications==2024.10.1
     # via jsonschema
-kiwisolver==1.4.7
-    # via matplotlib
 linkify-it-py==2.0.3
     # via panel
 litellm==1.49.1
@@ -102,10 +94,6 @@ markdown-it-py==3.0.0
     #   rich
 markupsafe==2.1.5
     # via jinja2
-matplotlib==3.9.2
-    # via
-    #   graphs (pyproject.toml)
-    #   wordcloud
 mdit-py-plugins==0.4.2
     # via panel
 mdurl==0.1.2
@@ -118,9 +106,7 @@ numpy==2.1.2
     # via
     #   bokeh
     #   contourpy
-    #   matplotlib
     #   pandas
-    #   wordcloud
 openai==1.51.2
     # via
     #   graphs (pyproject.toml)
@@ -130,7 +116,6 @@ packaging==24.1
     # via
     #   bokeh
     #   huggingface-hub
-    #   matplotlib
     #   panel
 pandas==2.2.3
     # via
@@ -143,10 +128,7 @@ param==2.1.1
     #   panel
     #   pyviz-comms
 pillow==10.4.0
-    # via
-    #   bokeh
-    #   matplotlib
-    #   wordcloud
+    # via bokeh
 propcache==0.2.0
     # via yarl
 pydantic==2.9.2
@@ -161,12 +143,8 @@ pydantic-core==2.23.4
     #   pydantic
 pygments==2.18.0
     # via rich
-pyparsing==3.1.4
-    # via matplotlib
 python-dateutil==2.9.0.post0
-    # via
-    #   matplotlib
-    #   pandas
+    # via pandas
 python-dotenv==1.0.1
     # via litellm
 pytz==2024.2
@@ -239,8 +217,6 @@ urllib3==2.2.3
     # via requests
 webencodings==0.5.1
     # via bleach
-wordcloud==1.9.3
-    # via graphs (pyproject.toml)
 xyzservices==2024.9.0
     # via bokeh
 yarl==1.14.0
