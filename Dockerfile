@@ -17,4 +17,4 @@ WORKDIR /
 
 EXPOSE 6666
 
-CMD ["panel", "serve", "src/graphs/app/main.py", "--address", "0.0.0.0", "--port", "6666",  "--allow-websocket-origin", "*", "--num-procs", "2", "--num-threads", "0", "--index", "main"]
+CMD ["panel", "serve", "src/graphs/app/main.py", "--address", "0.0.0.0", "--port", "6666",  "--allow-websocket-origin", "*", "--index", "main"]
