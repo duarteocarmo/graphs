@@ -364,7 +364,7 @@ It breaks pretty easily - but I just wanted to see how well it did.
         return self.graph.draw()
 
     def button(self):
-        btn = pn.widgets.Button(name="Load Example", button_type="success")
+        btn = pn.widgets.Button(name="Load Example", button_type="default")
 
         content = """
         Over the past few months, I've had the opportunity to collaborate with a fellow photographer named Michael on a photography project. We explored different areas of the city, capturing its vibrant street life and hidden gems. Working with Michael was a refreshing experience, as he has a unique eye for composition and storytelling.
