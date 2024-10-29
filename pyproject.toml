@@ -7,7 +7,7 @@ requires-python = ">=3.10"
 dependencies = [
   "pydantic",
   "openai",
-  "litellm",
+  "litellm==1.51.0",
   "graphviz",
   "panel",
   "instructor"

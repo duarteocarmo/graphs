@@ -83,7 +83,7 @@ jsonschema-specifications==2024.10.1
     # via jsonschema
 linkify-it-py==2.0.3
     # via panel
-litellm==1.49.1
+litellm==1.51.0
     # via graphs (pyproject.toml)
 markdown==3.7
     # via panel
@@ -107,7 +107,7 @@ numpy==2.1.2
     #   bokeh
     #   contourpy
     #   pandas
-openai==1.51.2
+openai==1.52.2
     # via
     #   graphs (pyproject.toml)
     #   instructor
