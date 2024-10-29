@@ -204,7 +204,7 @@ It breaks pretty easily - but I just wanted to see how well it did.
             message_params=self.mp,
             callback_exception="verbose",
             widgets=pn.widgets.TextInput(
-                placeholder="Chat away, and see the knowledge graph update.."
+                placeholder="Type here or click the button below 👇 to load an example"
             ),
         )
 
