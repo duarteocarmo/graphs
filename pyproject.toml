@@ -12,6 +12,7 @@ dependencies = [
   "litellm",
   "graphviz",
   "panel",
+  "instructor"
 ]
 
 [project.optional-dependencies]

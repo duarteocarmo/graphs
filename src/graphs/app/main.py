@@ -8,14 +8,17 @@ import panel as pn
 import param
 from graphviz import Digraph
 from litellm import acompletion, completion, stream_chunk_builder
+from litellm.caching.caching import Cache
 from panel.chat import ChatMessage
 from panel.viewable import Viewer
 from pydantic import BaseModel, Field, create_model
 
 from graphs import MODEL
 
+litellm.cache = Cache()
 litellm.enable_json_schema_validation = True
 pn.extension(sizing_mode="stretch_width")
+pn.extension(notifications=True)
 
 
 def schema(f) -> dict:
@@ -53,6 +56,8 @@ div.card-margin:nth-child(2) {
 :root {
     --body-font: "Noto Sans", sans-serif !important;
 }
+
+
 """
 
 
@@ -89,7 +94,11 @@ class KnowledgeGraph(BaseModel):
         dot = Digraph(comment="Knowledge Graph", format="svg")
         for node in self.nodes:
             dot.node(
-                str(node.id), node.name, color="lightblue2", style="filled"
+                str(node.id),
+                f"{node.name} ({node.node_type})",
+                fillcolor="white",
+                style="filled",
+                color="black",
             )
         for edge in self.edges:
             dot.edge(
@@ -135,6 +144,7 @@ def update_graph(input: list[str], kg: KnowledgeGraph) -> KnowledgeGraph:
             },
         ],
         response_format=KnowledgeGraph,
+        caching=True,
     )
 
     try:
@@ -153,15 +163,36 @@ class KnowledgeGraphApp(Viewer):
     def __init__(self, **params):
         super().__init__(**params)
 
-        self.graph = KnowledgeGraph(
-            nodes=[Node(id=0, name="User", node_type="PERSON")]
-        )
+        self.graph = self.create_example_graph("User")
 
+        self.mp = {
+            "show_timestamp": False,
+            "show_avatar": False,
+            "show_user": False,
+            "reaction_icons": {},
+            "show_copy_icon": False,
+            "stylesheets": [
+                """
+            .message {
+                font-size: 0.9em;
+            }
+            """
+            ],
+        }
         self.chat_interface = pn.chat.ChatInterface(
             callback=self.chat_callback,
             callback_user="Bot",
             show_rerun=False,
-            help_text="Start chatting and see the knowledge graph update..",
+            help_text="""
+What if ChatGPT's memory wasn't just a boring _little_ list of facts? What if it could actually _map out_ all of your interactions with it?
+
+This is a small demo of using GPT-4o-mini to iteratively build a knowledge graph based on a conversation you have with it.
+
+Just start chatting with the bot and see it update, or click the "Load Example" button to see an example conversation.
+
+It breaks pretty easily - but I just wanted to see how well it did.
+
+            """.strip(),
             sizing_mode="stretch_both",
             avatar="",
             default_avatars={
@@ -170,21 +201,11 @@ class KnowledgeGraphApp(Viewer):
                 "Bot": "🍕",
                 "Help": "ℹ️",
             },
-            message_params={
-                "show_timestamp": False,
-                "show_avatar": False,
-                "show_user": False,
-                "reaction_icons": {},
-                "show_copy_icon": False,
-                "stylesheets": [
-                    """
-                .message {
-                    font-size: 0.9em;
-                }
-                """
-                ],
-            },
+            message_params=self.mp,
             callback_exception="verbose",
+            widgets=pn.widgets.TextInput(
+                placeholder="Chat away, and see the knowledge graph update.."
+            ),
         )
 
     def create_example_graph(self, text: str):
@@ -215,7 +236,9 @@ class KnowledgeGraphApp(Viewer):
         Update the knowledge base with information about the user.
         Returns a message indicating that the knowledge base has been updated.
         """
-        print(f"Updating knowledge base with: {information_about_user}")
+        pn.state.notifications.success(
+            f"Updating knowledge base with: {information_about_user}"
+        )
         return information_about_user
 
     @staticmethod
@@ -274,6 +297,7 @@ class KnowledgeGraphApp(Viewer):
             stream=True,
             tools=[schema(self.update_knowledge_base)],
             tool_choice="auto",
+            caching=True,
         )
         message = ""
         chunks = []
@@ -339,24 +363,40 @@ class KnowledgeGraphApp(Viewer):
     def _update_svg(self):
         return self.graph.draw()
 
+    def button(self):
+        btn = pn.widgets.Button(name="Load Example", button_type="success")
+
+        content = """
+        Over the past few months, I've had the opportunity to collaborate with a fellow photographer named Michael on a photography project. We explored different areas of the city, capturing its vibrant street life and hidden gems. Working with Michael was a refreshing experience, as he has a unique eye for composition and storytelling.
+        """.strip()
+
+        btn.on_click(
+            lambda event: self.chat_interface.send(
+                ChatMessage(content, user="User", **self.mp)
+            )
+        )
+
+        return btn
+
     def __panel__(self):
         return pn.template.FastListTemplate(
-            title="ChatGPT Memory (if it was cool)",
+            favicon="https://duarteocarmo.com/favicons/apple-touch-icon.png",
+            title="Knowledge Graph Chat",
             main=[
                 self._update_svg,
                 self.chat_interface,
                 pn.Row(
-                    pn.widgets.Button(
-                        name="Load Example", button_type="default"
-                    ),
+                    self.button,
                     pn.layout.HSpacer(),
                 ),
                 pn.pane.HTML("""
-                A stupid experiment by <a href="https://duarteocarmo.com" target="_blank">Duarte Carmo</a>.
+                A stupid experiment by <a href="https://duarteocarmo.com" target="_blank">Duarte Carmo</a> -
+                Trust me, you don't want to see this <a href="https://github.com/duarteocarmo/graphs/blob/master/src/graphs/app/main.py">code.</a>
+
                 """),
             ],
             header=[],
-            theme_toggle=True,
+            theme_toggle=False,
             busy_indicator=None,
             raw_css=[CSS],
             header_background="white",
