@@ -20,6 +20,8 @@ litellm.enable_json_schema_validation = True
 pn.extension(sizing_mode="stretch_width")
 pn.extension(notifications=True)
 
+pn.param.ParamMethod.loading_indicator = True
+
 
 def schema(f) -> dict:
     kw = {
@@ -108,6 +110,7 @@ class KnowledgeGraph(BaseModel):
             )
         svg_content = dot.pipe(encoding="utf-8")
         svg_content = svg_content[svg_content.find("<svg") :]
+        print("DREW!")
         return pn.pane.SVG(svg_content, sizing_mode="stretch_both")
 
 
@@ -164,6 +167,7 @@ class KnowledgeGraphApp(Viewer):
         super().__init__(**params)
 
         self.graph = self.create_example_graph("User")
+        self.svg = self.graph.draw()
 
         self.mp = {
             "show_timestamp": False,
@@ -313,6 +317,7 @@ It breaks pretty easily - but I just wanted to see how well it did.
                 chunks.append(chunk)
 
         if chunks:
+            self.svg.loading = True
             rebuilt_stream = stream_chunk_builder(chunks)
             tool_call = rebuilt_stream.choices[0].message.tool_calls[0]
             function_name = tool_call.function.name
@@ -360,8 +365,10 @@ It breaks pretty easily - but I just wanted to see how well it did.
             self.graph = update_graph(result, self.graph)
 
     @param.depends("graph", watch=False)
-    def _update_svg(self):
-        return self.graph.draw()
+    def show_svg(self):
+        self.svg = self.graph.draw()
+        self.svg.loading = False
+        return self.svg
 
     def button(self):
         btn = pn.widgets.Button(name="Load Example", button_type="default")
@@ -383,7 +390,7 @@ It breaks pretty easily - but I just wanted to see how well it did.
             favicon="https://duarteocarmo.com/favicons/apple-touch-icon.png",
             title="Knowledge Graph Chat",
             main=[
-                self._update_svg,
+                self.show_svg,
                 self.chat_interface,
                 pn.Row(
                     self.button,
